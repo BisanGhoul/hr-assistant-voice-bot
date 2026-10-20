@@ -1,0 +1,8 @@
+[
+  {"q": "I used up all my annual leave, can I still take a day off?", "expected": "Admin-PPE-SOP/003"},
+  {"q": "What if I forget to check in?", "expected": "Admin-PPE-SOP/001"},
+  {"q": "How do I get a key to my office?", "expected": "Admin-PPE-SOP/0015"},
+  {"q": "How much is the transportation allowance?", "expected": null},
+  {"q": "Do i have to check in whem working off site?", "expected": "Admin-PPE-SOP/001"},
+  {"q": "if i take a half paid sick vication from thursday till sunday will friday and saturday count?", "expected": "Admin-PPE-SOP/003"}
+]
