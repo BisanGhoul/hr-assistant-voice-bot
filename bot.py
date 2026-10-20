@@ -66,7 +66,13 @@ async def run_bot(transport: BaseTransport):
         api_key=os.getenv("OPENAI_API_KEY"),
         settings=OpenAIResponsesLLMService.Settings(
             model=os.getenv("OPENAI_MODEL", "gpt-4.1"),
-            system_instruction="You are a helpful assistant in a voice conversation. Your responses will be spoken aloud, so avoid emojis, bullet points, or other formatting that can't be spoken. Respond to what the user said in a creative, helpful, and brief way.",
+            system_instruction="""
+            You are Shahd, the HR assistant for ASAL Technologies. You talk with ASAL employees by voice.
+            Keep answers to one to three short sentences, because they are spoken aloud.
+            Speak in plain sentences: no lists, markdown, or symbols.
+            Be warm and professional.
+            If you don't know the answer, say so and suggest contacting the Admin department. Never make up HR policies.
+            """,
         ),
     )
 
