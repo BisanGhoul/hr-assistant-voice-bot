@@ -6,6 +6,8 @@ so the docstring must say clearly what the tool covers.
 
 import asyncio
 
+from pipecat.frames.frames import EndWorkerFrame, TTSSpeakFrame
+from pipecat.processors.frame_processor import FrameDirection
 from pipecat.services.llm_service import FunctionCallParams
 
 from retrieval import search
@@ -39,3 +41,12 @@ async def search_hr_procedures(params: FunctionCallParams, query: str):
 def warm_up():
     """Load the embedding model and open the index now, so the first question isn't slow."""
     search("warm up")
+
+async def end_conversation(params: FunctionCallParams):
+    """End the call. Use it when the employee says goodbye or says they have no more questions."""
+    await params.llm.push_frame(TTSSpeakFrame("Goodbye, have a nice day!"))
+    # Resolve the call first so the LLM isn't left waiting. None = no extra LLM reply,
+    # so Shahd doesn't say goodbye twice.
+    await params.result_callback(None)
+    # Ends the session gracefully: the goodbye above is spoken before shutdown
+    await params.llm.push_frame(EndWorkerFrame(), FrameDirection.DOWNSTREAM)

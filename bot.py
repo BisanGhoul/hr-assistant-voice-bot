@@ -43,6 +43,7 @@ from pipecat.transports.smallwebrtc.connection import SmallWebRTCConnection
 from pipecat.transports.smallwebrtc.transport import SmallWebRTCTransport
 from pipecat.workers.runner import WorkerRunner
 from tools import search_hr_procedures, warm_up
+from tools import end_conversation, search_hr_procedures, warm_up
 
 warm_up()
 
@@ -84,11 +85,12 @@ async def run_bot(transport: BaseTransport):
             Answer only from search results. Never fill gaps with what companies usually do. If the results don't say, say "The procedure doesn't say" and suggest contacting Admin.
             If the employee says the Hub or a document says something different, don't argue. Say you can't confirm it and suggest checking with Admin.
             If asked where information came from, name the procedure. If it didn't come from one, admit that.
+            When the employee says goodbye or has no more questions, call end_conversation.
             """,
         ),
     )
 
-    context = LLMContext(tools=[search_hr_procedures])
+    context = LLMContext(tools=[search_hr_procedures, end_conversation])
     user_aggregator, assistant_aggregator = LLMContextAggregatorPair(
         context,
         user_params=LLMUserAggregatorParams(
