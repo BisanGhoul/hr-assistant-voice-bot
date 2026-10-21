@@ -20,7 +20,10 @@ Run the bot using::
     uv run bot.py
 """
 
+import json
 import os
+from datetime import datetime
+from pathlib import Path
 
 from dotenv import load_dotenv
 from loguru import logger
@@ -30,8 +33,10 @@ from pipecat.pipeline.pipeline import Pipeline
 from pipecat.pipeline.worker import PipelineParams, PipelineWorker
 from pipecat.processors.aggregators.llm_context import LLMContext
 from pipecat.processors.aggregators.llm_response_universal import (
+    AssistantTurnStoppedMessage,
     LLMContextAggregatorPair,
     LLMUserAggregatorParams,
+    UserTurnMessageAddedMessage,
 )
 from pipecat.runner.types import DailyRunnerArguments, RunnerArguments, SmallWebRTCRunnerArguments
 from pipecat.services.cartesia.tts import CartesiaTTSService
@@ -49,6 +54,18 @@ warm_up()
 
 load_dotenv(override=True)
 
+TRANSCRIPTS_DIR = Path("transcripts")  
+
+
+def save_transcript(transcript):
+    if not transcript:
+        return
+    TRANSCRIPTS_DIR.mkdir(exist_ok=True)
+    path = TRANSCRIPTS_DIR / f"{datetime.now():%Y-%m-%d_%H-%M-%S}.jsonl"
+    with path.open("w", encoding="utf-8") as f:
+        for entry in transcript:
+            f.write(json.dumps(entry, ensure_ascii=False, default=str) + "\n")
+    logger.info(f"Transcript saved to {path}")
 
 async def run_bot(transport: BaseTransport):
     """Main bot logic."""
@@ -119,6 +136,12 @@ async def run_bot(transport: BaseTransport):
         ),
         observers=[],
     )
+
+    # @worker.event_handler("on_pipeline_finished")
+    # async def on_pipeline_finished(worker, frame):
+    #     # The LLM context already holds the whole conversation, including tool calls
+    #     messages = [m for m in context.get_messages() if isinstance(m, dict) and m.get("role") != "developer"]
+    #     save_transcript(messages)
 
     @worker.rtvi.event_handler("on_client_ready")
     async def on_client_ready(rtvi):
